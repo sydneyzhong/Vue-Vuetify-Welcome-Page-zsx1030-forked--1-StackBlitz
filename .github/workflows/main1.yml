@@ -1,0 +1,50 @@
+name: Deploy to ECS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      ENV_NAME: production
+      ANOTHER_VAR: some_value
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ 8d30e0c309a22259201a6ec4268b7f43 }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ 47.120.56.51 }} >> ~/.ssh/known_hosts
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t my-image:latest .
+          docker tag my-image:latest ${REGISTRY}/my-image:latest
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker push ${REGISTRY}/my-image:latest
+        env:
+          REGISTRY: your-docker-registry
+
+      - name: Deploy to ECS
+        run: |
+          ssh ${{ zhongshixiong950421 }}@${{ 47.120.56.51 }} 'bash -s' < ./deploy.sh
+
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "Deployment successful! zsx1"
+          # You can also send an email or Slack notification here
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "Deployment failed! zsx1"
+          # You can also send an email or Slack notification here
