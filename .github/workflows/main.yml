@@ -1,0 +1,25 @@
+name: Deploy to ECS
+
+on:
+  push:
+    branches:
+      - main  # 根據需要調整分支名稱
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.ECS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.ECS_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to ECS
+        run: |
+          ssh ${{ secrets.ECS_SSH_USER }}@${{ secrets.ECS_IP }} 'bash -s' < ./deploy.sh
